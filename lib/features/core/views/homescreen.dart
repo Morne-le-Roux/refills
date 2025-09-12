@@ -9,6 +9,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:refills/features/core/widgets/refills_graph.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:refills/features/core/widgets/custom_app_bar.dart';
+import 'package:refills/features/core/views/_custom_app_bar_delegate.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -124,76 +126,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
-      appBar: AppBar(
-        title: const Text(
-          'Refills',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 22,
-            letterSpacing: -0.5,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            tooltip: 'Setup',
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SetupScreen()));
-            },
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : colorScheme.primary,
         elevation: 2,
         onPressed: _onAddRefill,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.black
+              : colorScheme.onPrimary,
+        ),
       ),
       body: refills.isEmpty
           ? SafeArea(child: _emptyState())
           : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: EdgeInsets.zero,
-                  itemCount: refills.isNotEmpty
-                      ? refills.length + 2
-                      : 0, // +1 for graph, +1 for loading
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      if (refills.length < 2) {
-                        return const SizedBox.shrink();
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  SliverPersistentHeader(
+                    floating: true,
+                    delegate: CustomAppBarDelegate(
+                      minExtent: kToolbarHeight,
+                      maxExtent: kToolbarHeight,
+                      child: CustomAppBar(
+                        title: Text(
+                          'Refills',
+                          style: textTheme.titleLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 22,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        actions: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.settings,
+                              color: colorScheme.onSurface,
+                            ),
+                            tooltip: 'Setup',
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const SetupScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                        centerTitle: true,
+                        backgroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black
+                            : Colors.white,
+                        elevation: 2.0,
+                        iconTheme: IconThemeData(color: colorScheme.onSurface),
+                      ),
+                    ),
+                  ),
+                  if (refills.length >= 2)
+                    SliverToBoxAdapter(child: _graphSection()),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index >= refills.length) {
+                        if (_hasMore) {
+                          return _loadingIndicator();
+                        } else {
+                          return null;
+                        }
                       }
-                      return _graphSection();
-                    }
-                    if (index == refills.length + 1 && _hasMore) {
-                      return _loadingIndicator();
-                    }
-                    if (index > 0 && index <= refills.length) {
-                      final refill = refills[index - 1];
-                      final nextRefill = (index < refills.length)
-                          ? refills[index]
+                      final refill = refills[index];
+                      final nextRefill = (index + 1 < refills.length)
+                          ? refills[index + 1]
                           : null;
                       return _refillListItem(
                         refill: refill,
                         nextRefill: nextRefill,
                         onDelete: () => _onDeleteRefill(refill),
                       );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                    }, childCount: refills.length + (_hasMore ? 1 : 0)),
+                  ),
+                ],
               ),
             ),
     );
@@ -225,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -236,41 +255,54 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.07),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.07),
                             shape: BoxShape.circle,
                           ),
                           padding: const EdgeInsets.all(18),
-                          child: const Icon(
+                          child: Icon(
                             Icons.star_rounded,
-                            color: Colors.amber,
+                            color: Theme.of(context).colorScheme.secondary,
                             size: 38,
                           ),
                         ),
-                        const SizedBox(height: 18),
-                        const Text(
+                        SizedBox(height: 18),
+                        Text(
                           'Enjoying Refills?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20,
-                            letterSpacing: -0.5,
-                            color: Colors.black,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 20,
+                                letterSpacing: -0.5,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 10),
-                        const Text(
+                        SizedBox(height: 10),
+                        Text(
                           "If you're finding Refills helpful, would you mind rating us on the app store? Your feedback helps us improve!",
-                          style: TextStyle(fontSize: 15, color: Colors.black87),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                fontSize: 15,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.87),
+                              ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Row(
                           children: [
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary,
+                                  foregroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -281,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 onPressed: () =>
                                     Navigator.of(context).pop('rate'),
-                                child: const Text(
+                                child: Text(
                                   'Rate Now',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -290,13 +322,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.black,
-                                  side: const BorderSide(
-                                    color: Colors.black12,
+                                  foregroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  side: BorderSide(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.12),
                                     width: 1.2,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -308,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 onPressed: () =>
                                     Navigator.of(context).pop('later'),
-                                child: const Text(
+                                child: Text(
                                   'Maybe Later',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
@@ -319,15 +355,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextButton(
                           onPressed: () => Navigator.of(context).pop('never'),
-                          child: const Text(
+                          child: Text(
                             'Never',
-                            style: TextStyle(
-                              color: Colors.black38,
-                              fontSize: 14,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.38),
+                                  fontSize: 14,
+                                ),
                           ),
                         ),
                       ],
@@ -449,15 +488,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Dismissible(
         key: Key(refill.id),
         direction: DismissDirection.endToStart,
-        background: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          color: Colors.transparent,
-          child: const Icon(
-            Icons.delete_outline,
-            color: Colors.black38,
-            size: 28,
-          ),
+        background: Builder(
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              color: Colors.transparent,
+              child: Icon(
+                Icons.delete_outline,
+                color: isDark ? Colors.white : Colors.black38,
+                size: 28,
+              ),
+            );
+          },
         ),
         confirmDismiss: (direction) async {
           onDelete();

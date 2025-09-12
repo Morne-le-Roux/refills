@@ -38,19 +38,26 @@ class _RefillCardState extends State<RefillCard> {
   Widget build(BuildContext context) {
     final refill = widget.refill;
     final previousRefill = widget.previousRefill;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final boxColor = isDark ? Colors.black : Colors.white;
+    final borderColor = isDark ? Colors.white : Colors.grey.shade300;
+    final mainTextColor = isDark ? Colors.white : Colors.black;
+    final fadedTextColor = isDark ? Colors.white70 : Colors.black54;
+    final fadedTextColor2 = isDark ? Colors.white38 : Colors.black38;
+    final strongTextColor = isDark ? Colors.white : Colors.black87;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: boxColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDark ? 0.12 : 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(width: 0.15, color: Colors.grey.shade300),
+        border: Border.all(width: 1.2, color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,14 +67,15 @@ class _RefillCardState extends State<RefillCard> {
             children: [
               Text(
                 "$currencySymbol${refill.cost.toStringAsFixed(2)}",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: mainTextColor,
                 ),
               ),
               Text(
                 "${refill.amount.toStringAsFixed(2)} $volumeUnit",
-                style: const TextStyle(color: Colors.black54, fontSize: 15),
+                style: TextStyle(color: fadedTextColor, fontSize: 15),
               ),
             ],
           ),
@@ -77,11 +85,11 @@ class _RefillCardState extends State<RefillCard> {
             children: [
               Text(
                 "${refill.fillPercentage.toStringAsFixed(0)}% full",
-                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(color: fadedTextColor, fontSize: 14),
               ),
               Text(
                 "${refill.odometer} $distanceUnit",
-                style: const TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(color: fadedTextColor, fontSize: 14),
               ),
             ],
           ),
@@ -91,11 +99,11 @@ class _RefillCardState extends State<RefillCard> {
             children: [
               Text(
                 "${refill.date.day.toString().padLeft(2, '0')}/${refill.date.month.toString().padLeft(2, '0')}/${refill.date.year}",
-                style: const TextStyle(color: Colors.black38, fontSize: 13),
+                style: TextStyle(color: fadedTextColor2, fontSize: 13),
               ),
               Text(
                 "$currencySymbol${getPricePerLiter(refill).toStringAsFixed(2)}/$volumeUnit",
-                style: const TextStyle(color: Colors.black38, fontSize: 13),
+                style: TextStyle(color: fadedTextColor2, fontSize: 13),
               ),
             ],
           ),
@@ -105,11 +113,11 @@ class _RefillCardState extends State<RefillCard> {
             children: [
               Text(
                 "$volumeUnit/100$distanceUnit: ${previousRefill != null ? getLiterPerKilometer(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
-                style: const TextStyle(color: Colors.black87, fontSize: 13),
+                style: TextStyle(color: strongTextColor, fontSize: 13),
               ),
               Text(
                 "$distanceUnit/$volumeUnit: ${previousRefill != null ? getKilometerPerLiter(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
-                style: const TextStyle(color: Colors.black87, fontSize: 13),
+                style: TextStyle(color: strongTextColor, fontSize: 13),
               ),
             ],
           ),

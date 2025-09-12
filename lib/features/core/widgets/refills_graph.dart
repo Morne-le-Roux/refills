@@ -42,21 +42,31 @@ class _RefillsGraphState extends State<RefillsGraph> {
     final spots = widget.spots;
     final showKmPerLiter = widget.showKmPerLiter;
     final onSwitch = widget.onSwitch;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final boxColor = isDark ? Colors.black : Colors.white;
+    final borderColor = isDark ? Colors.white : Colors.grey.shade300;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final fadedTextColor = isDark
+        ? Colors.white.withOpacity(0.7)
+        : Colors.black38;
+    final gridLineColor = isDark
+        ? Colors.white.withOpacity(0.18)
+        : Colors.black.withOpacity(0.08);
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: boxColor,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withOpacity(isDark ? 0.12 : 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
-            border: Border.all(width: 0.15, color: Colors.grey.shade300),
+            border: Border.all(width: 1.2, color: borderColor),
           ),
           child: Column(
             children: [
@@ -64,7 +74,14 @@ class _RefillsGraphState extends State<RefillsGraph> {
                 height: 220,
                 child: BarChart(
                   BarChartData(
-                    gridData: FlGridData(show: true, drawHorizontalLine: true),
+                    gridData: FlGridData(
+                      show: true,
+                      drawHorizontalLine: true,
+                      getDrawingHorizontalLine: (value) =>
+                          FlLine(color: gridLineColor, strokeWidth: 1),
+                      getDrawingVerticalLine: (value) =>
+                          FlLine(color: gridLineColor, strokeWidth: 1),
+                    ),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
@@ -89,13 +106,13 @@ class _RefillsGraphState extends State<RefillsGraph> {
                         barRods: [
                           BarChartRodData(
                             toY: spot.y,
-                            color: Colors.black,
+                            color: textColor,
                             width: 8,
                             borderRadius: BorderRadius.circular(4),
                             backDrawRodData: BackgroundBarChartRodData(
                               show: true,
                               toY: 0,
-                              color: Colors.black.withOpacity(0.08),
+                              color: textColor.withOpacity(0.08),
                             ),
                           ),
                         ],
@@ -113,7 +130,7 @@ class _RefillsGraphState extends State<RefillsGraph> {
                               : "$volumeUnit/100$distanceUnit";
                           return BarTooltipItem(
                             "${rod.toY.toStringAsFixed(1)} $unitLabel",
-                            const TextStyle(color: Colors.white, fontSize: 12),
+                            TextStyle(color: textColor, fontSize: 12),
                           );
                         },
                       ),
@@ -128,7 +145,7 @@ class _RefillsGraphState extends State<RefillsGraph> {
                   Text(
                     '$volumeUnit/100$distanceUnit',
                     style: TextStyle(
-                      color: !showKmPerLiter ? Colors.black : Colors.black38,
+                      color: !showKmPerLiter ? textColor : fadedTextColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -142,9 +159,9 @@ class _RefillsGraphState extends State<RefillsGraph> {
                         width: 38,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: boxColor,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.black12, width: 1),
+                          border: Border.all(color: borderColor, width: 1),
                         ),
                         child: Stack(
                           children: [
@@ -159,7 +176,7 @@ class _RefillsGraphState extends State<RefillsGraph> {
                                   width: 16,
                                   height: 16,
                                   decoration: BoxDecoration(
-                                    color: Colors.black,
+                                    color: textColor,
                                     borderRadius: BorderRadius.circular(9),
                                   ),
                                 ),
@@ -173,7 +190,7 @@ class _RefillsGraphState extends State<RefillsGraph> {
                   Text(
                     '$distanceUnit/$volumeUnit',
                     style: TextStyle(
-                      color: showKmPerLiter ? Colors.black : Colors.black38,
+                      color: showKmPerLiter ? textColor : fadedTextColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

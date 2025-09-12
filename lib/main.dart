@@ -24,7 +24,28 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       color: Colors.white,
-      theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        // Remove primarySwatch to avoid default blue/purple color
+        // Use plain white for backgrounds
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0.5,
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          elevation: 0.5,
+        ),
+      ),
+      themeMode: ThemeMode.system, // Follows system setting
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<bool>(
         future: _isFirstLaunch(),

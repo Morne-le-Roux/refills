@@ -51,148 +51,188 @@ class _SetupScreenState extends State<SetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? colorScheme.surface : Colors.white;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Setup',
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: colorScheme.onSurface,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Volume Unit'),
-            Row(
-              children: volumeUnits.map((unit) {
-                final bool selected = _volumeUnit == unit;
-                return Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    child: Material(
-                      color: selected ? Colors.black : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      child: InkWell(
+      backgroundColor: bgColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Volume Unit'),
+              Row(
+                children: volumeUnits.map((unit) {
+                  final bool selected = _volumeUnit == unit;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final selectedColor = selected
+                      ? (isDark ? Colors.white : Colors.black)
+                      : colorScheme.surface;
+                  final selectedTextColor = selected
+                      ? (isDark ? Colors.black : Colors.white)
+                      : colorScheme.onSurface;
+                  return Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Material(
+                        color: selectedColor,
                         borderRadius: BorderRadius.circular(24),
-                        onTap: () => setState(() => _volumeUnit = unit),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            border: selected
-                                ? null
-                                : Border.all(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Center(
-                            child: Text(
-                              unit,
-                              style: TextStyle(
-                                color: selected ? Colors.white : Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () => setState(() => _volumeUnit = unit),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              border: selected
+                                  ? null
+                                  : Border.all(
+                                      color: colorScheme.onSurface,
+                                      width: 1,
+                                    ),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Center(
+                              child: Text(
+                                unit,
+                                style: TextStyle(
+                                  color: selectedTextColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            const Text('Distance Unit'),
-            Row(
-              children: distanceUnits.map((unit) {
-                final bool selected = _distanceUnit == unit;
-                return Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    child: Material(
-                      color: selected ? Colors.black : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      child: InkWell(
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              const Text('Distance Unit'),
+              Row(
+                children: distanceUnits.map((unit) {
+                  final bool selected = _distanceUnit == unit;
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final selectedColor = selected
+                      ? (isDark ? Colors.white : Colors.black)
+                      : colorScheme.surface;
+                  final selectedTextColor = selected
+                      ? (isDark ? Colors.black : Colors.white)
+                      : colorScheme.onSurface;
+                  return Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Material(
+                        color: selectedColor,
                         borderRadius: BorderRadius.circular(24),
-                        onTap: () => setState(() => _distanceUnit = unit),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            border: selected
-                                ? null
-                                : Border.all(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Center(
-                            child: Text(
-                              unit,
-                              style: TextStyle(
-                                color: selected ? Colors.white : Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () => setState(() => _distanceUnit = unit),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              border: selected
+                                  ? null
+                                  : Border.all(
+                                      color: colorScheme.onSurface,
+                                      width: 1,
+                                    ),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Center(
+                              child: Text(
+                                unit,
+                                style: TextStyle(
+                                  color: selectedTextColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            const Text('Currency Symbol'),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[400]!, width: 1),
+                  );
+                }).toList(),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Enter currency symbol',
+              const SizedBox(height: 16),
+              const Text('Currency Symbol'),
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outline, width: 1),
                 ),
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
-                onChanged: (val) => setState(() => _currencySymbol = val),
-                controller: TextEditingController(text: _currencySymbol),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter currency symbol',
+                  ),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                  onChanged: (val) => setState(() => _currencySymbol = val),
+                  controller: TextEditingController(text: _currencySymbol),
+                ),
               ),
-            ),
-            const Spacer(),
-            Center(
-              child: SizedBox(
-                width: double.infinity,
-                child: Material(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(24),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(24),
-                    onTap: _onContinue,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: Text(
-                          'Continue',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
+              const Spacer(),
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Builder(
+                    builder: (context) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      final buttonColor = isDark ? Colors.white : Colors.black;
+                      final textColor = isDark ? Colors.black : Colors.white;
+                      return Material(
+                        color: buttonColor,
+                        borderRadius: BorderRadius.circular(24),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: _onContinue,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: Text(
+                                'Continue',
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
