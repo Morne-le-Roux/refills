@@ -8,6 +8,7 @@ import 'package:refills/nav.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:refills/features/core/widgets/refills_graph.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -209,6 +210,143 @@ class _HomeScreenState extends State<HomeScreen> {
             refills.add(refill);
             refills.sort((a, b) => b.odometer.compareTo(a.odometer));
           });
+          // Prompt for review after more than 3 entries, only if not already prompted 'never'
+          if (refills.length > 3) {
+            final prefs = await SharedPreferences.getInstance();
+            final hasPromptedReview =
+                prefs.getBool('hasPromptedReview') ?? false;
+            final neverPromptReview =
+                prefs.getBool('neverPromptReview') ?? false;
+            if (!hasPromptedReview && !neverPromptReview) {
+              final result = await showDialog<String>(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) => Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  backgroundColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 28,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.07),
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(18),
+                          child: const Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 38,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          'Enjoying Refills?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                            letterSpacing: -0.5,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "If you're finding Refills helpful, would you mind rating us on the app store? Your feedback helps us improve!",
+                          style: TextStyle(fontSize: 15, color: Colors.black87),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  elevation: 0,
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).pop('rate'),
+                                child: const Text(
+                                  'Rate Now',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  side: const BorderSide(
+                                    color: Colors.black12,
+                                    width: 1.2,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).pop('later'),
+                                child: const Text(
+                                  'Maybe Later',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop('never'),
+                          child: const Text(
+                            'Never',
+                            style: TextStyle(
+                              color: Colors.black38,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+              if (result == 'rate') {
+                final inAppReview = InAppReview.instance;
+                if (await inAppReview.isAvailable()) {
+                  inAppReview.requestReview();
+                  await prefs.setBool('hasPromptedReview', true);
+                }
+              } else if (result == 'never') {
+                await prefs.setBool('neverPromptReview', true);
+              }
+              // If 'later', do nothing, will prompt again next time
+            }
+          }
         },
       ),
     );
