@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (refills.length < 2) {
                         return const SizedBox.shrink();
                       }
-                      return _GraphSection();
+                      return _graphSection();
                     }
                     if (index == refills.length + 1 && _hasMore) {
                       return _loadingIndicator();
@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Extracted Widgets ---
 
   /// Graph section widget
-  static Widget _GraphSection() {
+  static Widget _graphSection() {
     // This context is only available in build, so pass required data via InheritedWidget or refactor as needed
     // For now, this is a placeholder for extraction
     return Padding(
