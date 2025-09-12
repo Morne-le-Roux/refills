@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:refills/features/core/models/refill.dart';
 import 'package:refills/features/core/data/refill_database.dart';
 import 'package:refills/features/core/views/add_refill.dart';
+import 'package:refills/features/core/setup_screen.dart';
 import 'package:refills/features/core/widgets/refill_card.dart';
 import 'package:refills/nav.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -138,6 +139,17 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0.5,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            tooltip: 'Setup',
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SetupScreen()));
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,

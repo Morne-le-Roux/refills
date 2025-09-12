@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:refills/features/core/user_preferences.dart';
 
-class RefillsGraph extends StatelessWidget {
+class RefillsGraph extends StatefulWidget {
   final List<FlSpot> spots;
   final bool showKmPerLiter;
   final ValueChanged<bool> onSwitch;
@@ -14,7 +15,33 @@ class RefillsGraph extends StatelessWidget {
   });
 
   @override
+  State<RefillsGraph> createState() => _RefillsGraphState();
+}
+
+class _RefillsGraphState extends State<RefillsGraph> {
+  String volumeUnit = 'L';
+  String distanceUnit = 'km';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final vUnit = await UserPreferences.getVolumeUnit();
+    final dUnit = await UserPreferences.getDistanceUnit();
+    setState(() {
+      volumeUnit = vUnit;
+      distanceUnit = dUnit;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final spots = widget.spots;
+    final showKmPerLiter = widget.showKmPerLiter;
+    final onSwitch = widget.onSwitch;
     return Column(
       children: [
         Container(
@@ -81,8 +108,11 @@ class RefillsGraph extends StatelessWidget {
                         fitInsideHorizontally: true,
                         fitInsideVertically: true,
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          String unitLabel = showKmPerLiter
+                              ? "$distanceUnit/$volumeUnit"
+                              : "$volumeUnit/100$distanceUnit";
                           return BarTooltipItem(
-                            rod.toY.toStringAsFixed(1),
+                            "${rod.toY.toStringAsFixed(1)} $unitLabel",
                             const TextStyle(color: Colors.white, fontSize: 12),
                           );
                         },
@@ -96,7 +126,7 @@ class RefillsGraph extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    'L/100km',
+                    '$volumeUnit/100$distanceUnit',
                     style: TextStyle(
                       color: !showKmPerLiter ? Colors.black : Colors.black38,
                       fontWeight: FontWeight.w500,
@@ -141,7 +171,7 @@ class RefillsGraph extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'km/L',
+                    '$distanceUnit/$volumeUnit',
                     style: TextStyle(
                       color: showKmPerLiter ? Colors.black : Colors.black38,
                       fontWeight: FontWeight.w500,

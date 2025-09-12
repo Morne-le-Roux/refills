@@ -1,14 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:refills/features/core/models/refill.dart';
+import 'package:refills/features/core/user_preferences.dart';
 
-class RefillCard extends StatelessWidget {
+class RefillCard extends StatefulWidget {
   const RefillCard({super.key, required this.refill, this.previousRefill});
 
   final Refill refill;
   final Refill? previousRefill;
 
   @override
+  State<RefillCard> createState() => _RefillCardState();
+}
+
+class _RefillCardState extends State<RefillCard> {
+  String volumeUnit = 'L';
+  String distanceUnit = 'km';
+  String currencySymbol = 'R';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final vUnit = await UserPreferences.getVolumeUnit();
+    final dUnit = await UserPreferences.getDistanceUnit();
+    final cSymbol = await UserPreferences.getCurrencySymbol();
+    setState(() {
+      volumeUnit = vUnit;
+      distanceUnit = dUnit;
+      currencySymbol = cSymbol;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final refill = widget.refill;
+    final previousRefill = widget.previousRefill;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
       decoration: BoxDecoration(
@@ -30,14 +59,14 @@ class RefillCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "R${refill.cost.toStringAsFixed(2)}",
+                "$currencySymbol${refill.cost.toStringAsFixed(2)}",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               Text(
-                "${refill.amount.toStringAsFixed(2)} L",
+                "${refill.amount.toStringAsFixed(2)} $volumeUnit",
                 style: const TextStyle(color: Colors.black54, fontSize: 15),
               ),
             ],
@@ -51,7 +80,7 @@ class RefillCard extends StatelessWidget {
                 style: const TextStyle(color: Colors.black54, fontSize: 14),
               ),
               Text(
-                "${refill.odometer} km",
+                "${refill.odometer} $distanceUnit",
                 style: const TextStyle(color: Colors.black54, fontSize: 14),
               ),
             ],
@@ -65,7 +94,7 @@ class RefillCard extends StatelessWidget {
                 style: const TextStyle(color: Colors.black38, fontSize: 13),
               ),
               Text(
-                "R${getPricePerLiter(refill).toStringAsFixed(2)}/L",
+                "$currencySymbol${getPricePerLiter(refill).toStringAsFixed(2)}/$volumeUnit",
                 style: const TextStyle(color: Colors.black38, fontSize: 13),
               ),
             ],
@@ -75,11 +104,11 @@ class RefillCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "L/100km: ${previousRefill != null ? getLiterPerKilometer(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
+                "$volumeUnit/100$distanceUnit: ${previousRefill != null ? getLiterPerKilometer(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
                 style: const TextStyle(color: Colors.black87, fontSize: 13),
               ),
               Text(
-                "km/L: ${previousRefill != null ? getKilometerPerLiter(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
+                "$distanceUnit/$volumeUnit: ${previousRefill != null ? getKilometerPerLiter(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
                 style: const TextStyle(color: Colors.black87, fontSize: 13),
               ),
             ],
