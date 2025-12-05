@@ -6,12 +6,16 @@ class RefillsGraph extends StatefulWidget {
   final List<FlSpot> spots;
   final bool showKmPerLiter;
   final ValueChanged<bool> onSwitch;
+  // Optional mask of which bars should be shown (true = show).
+  // Use when only consecutive 100% refills should be visualized.
+  final List<bool>? validBars;
 
   const RefillsGraph({
     super.key,
     required this.spots,
     required this.showKmPerLiter,
     required this.onSwitch,
+    this.validBars,
   });
 
   @override
@@ -40,6 +44,7 @@ class _RefillsGraphState extends State<RefillsGraph> {
   @override
   Widget build(BuildContext context) {
     final spots = widget.spots;
+    final validBars = widget.validBars;
     final showKmPerLiter = widget.showKmPerLiter;
     final onSwitch = widget.onSwitch;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -100,24 +105,27 @@ class _RefillsGraphState extends State<RefillsGraph> {
                       ),
                     ),
                     borderData: FlBorderData(show: false),
-                    barGroups: spots.map((spot) {
-                      return BarChartGroupData(
-                        x: spot.x.toInt(),
-                        barRods: [
-                          BarChartRodData(
-                            toY: spot.y,
-                            color: textColor,
-                            width: 8,
-                            borderRadius: BorderRadius.circular(4),
-                            backDrawRodData: BackgroundBarChartRodData(
-                              show: true,
-                              toY: 0,
-                              color: textColor.withOpacity(0.08),
-                            ),
+                    barGroups: [
+                      for (int i = 0; i < spots.length; i++)
+                        if (validBars == null ||
+                            (i < validBars.length && validBars[i]))
+                          BarChartGroupData(
+                            x: spots[i].x.toInt(),
+                            barRods: [
+                              BarChartRodData(
+                                toY: spots[i].y,
+                                color: textColor,
+                                width: 8,
+                                borderRadius: BorderRadius.circular(4),
+                                backDrawRodData: BackgroundBarChartRodData(
+                                  show: true,
+                                  toY: 0,
+                                  color: textColor.withOpacity(0.08),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      );
-                    }).toList(),
+                    ],
                     barTouchData: BarTouchData(
                       touchTooltipData: BarTouchTooltipData(
                         tooltipBgColor: Colors.black54,

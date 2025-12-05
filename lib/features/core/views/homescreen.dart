@@ -95,6 +95,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return spots;
   }
 
+  /// Returns a mask indicating which bars should be shown (both refills 100%).
+  List<bool> getValidBarsMask() {
+    final latestRefills = refills.length > pageSize
+        ? refills.sublist(0, pageSize)
+        : refills;
+    List<bool> mask = [];
+    for (int i = latestRefills.length - 2; i >= 0; i--) {
+      final curr = latestRefills[i];
+      final next = latestRefills[i + 1];
+      final isValid =
+          (curr.fillPercentage == 100 && next.fillPercentage == 100);
+      mask.add(isValid);
+    }
+    return mask;
+  }
+
   /// Helper for chart value calculation.
   double _calculateChartValue(Refill curr, Refill next) {
     final distance = curr.odometer - next.odometer;
@@ -111,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadSwitchSetting();
-    _seedDebugData();
+    // _seedDebugData();
     _loadInitialRefills();
     _scrollController.addListener(_onScroll);
   }
@@ -444,6 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('showKmPerLiter', value);
             },
+            validBars: state.getValidBarsMask(),
           );
         },
       ),

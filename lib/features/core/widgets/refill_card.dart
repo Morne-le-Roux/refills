@@ -112,11 +112,11 @@ class _RefillCardState extends State<RefillCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "$volumeUnit/100$distanceUnit: ${previousRefill != null ? getLiterPerKilometer(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
+                "$volumeUnit/100$distanceUnit: ${(previousRefill != null && refill.fillPercentage == 100 && previousRefill.fillPercentage == 100) ? getLiterPerKilometer(refill, previousRefill).toStringAsFixed(2) : '--'}",
                 style: TextStyle(color: strongTextColor, fontSize: 13),
               ),
               Text(
-                "$distanceUnit/$volumeUnit: ${previousRefill != null ? getKilometerPerLiter(refill, previousRefill).toStringAsFixed(2) : 'N/A'}",
+                "$distanceUnit/$volumeUnit: ${(previousRefill != null && refill.fillPercentage == 100 && previousRefill.fillPercentage == 100) ? getKilometerPerLiter(refill, previousRefill).toStringAsFixed(2) : '--'}",
                 style: TextStyle(color: strongTextColor, fontSize: 13),
               ),
             ],
